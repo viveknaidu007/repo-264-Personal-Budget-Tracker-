@@ -10,14 +10,14 @@ function Dashboard({ token, onLogout }) {
   const [budgetData, setBudgetData] = useState({ budget: 0, actual_expenses: 0 });
 
   const fetchSummary = async () => {
-    const response = await axios.get("http://localhost:8000/api/summary/", {
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/summary/`, {
       headers: { Authorization: `Token ${token}` },
     });
     setSummary(response.data);
   };
 
   const fetchBudgetComparison = async () => {
-    const response = await axios.get("http://localhost:8000/api/budget-comparison/", {
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/budget-comparison/`, {
       headers: { Authorization: `Token ${token}` },
     });
     setBudgetData(response.data);

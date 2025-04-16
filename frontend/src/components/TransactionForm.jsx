@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 function TransactionForm({ token }) {
-  const [categories, setCategories] = useState([]); // Always an array
+  const [categories, setCategories] = useState([]);
   const [formData, setFormData] = useState({
     category_id: "",
     amount: "",
@@ -15,17 +15,17 @@ function TransactionForm({ token }) {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("http://localhost:8000/api/categories/", {
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/categories/`, {
           headers: { Authorization: `Token ${token}` },
         });
-        console.log("Categories response:", response.data); // Debug raw response
-        const data = Array.isArray(response.data) ? response.data : []; // Force array
-        console.log("Processed categories:", data); // Debug processed data
+        console.log("Categories response:", response.data);
+        const data = Array.isArray(response.data) ? response.data : [];
+        console.log("Processed categories:", data);
         setCategories(data);
       } catch (err) {
         console.error("Error fetching categories:", err.response?.data || err.message);
         setError("Failed to load categories. Please try again.");
-        setCategories([]); // Fallback to empty array
+        setCategories([]);
       }
     };
     if (token) fetchCategories();
@@ -34,7 +34,7 @@ function TransactionForm({ token }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8000/api/transactions/", formData, {
+      await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/transactions/`, formData, {
         headers: { Authorization: `Token ${token}` },
       });
       setFormData({ category_id: "", amount: "", date: "", description: "", type: "income" });

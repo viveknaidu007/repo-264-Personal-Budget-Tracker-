@@ -6,7 +6,7 @@ function BudgetManager({ token }) {
   const [currentBudget, setCurrentBudget] = useState(null);
 
   const fetchCurrentBudget = async () => {
-    const response = await axios.get("http://localhost:8000/api/budgets/", {
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/budgets/`, {
       headers: { Authorization: `Token ${token}` },
     });
     const today = new Date();
@@ -25,7 +25,7 @@ function BudgetManager({ token }) {
     const today = new Date();
     const monthStart = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-01`;
     await axios.post(
-      "http://localhost:8000/api/budgets/",
+      `${import.meta.env.VITE_BACKEND_URL}/api/budgets/`,
       { month: monthStart, amount: budget },
       { headers: { Authorization: `Token ${token}` } }
     );

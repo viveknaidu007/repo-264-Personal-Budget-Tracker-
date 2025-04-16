@@ -9,18 +9,18 @@ function Login({ onLogin }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:8000/api/login/", {
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/login/`, {
         username,
         password,
       });
-      console.log("Login response:", response.data); // Debug log
+      console.log("Login response:", response.data);
       if (response.data.token) {
-        onLogin(response.data.token); // Pass token to App.jsx
+        onLogin(response.data.token);
       } else {
         setError("No token received from server");
       }
     } catch (err) {
-      console.error("Login error:", err.response?.data || err.message); // Debug log
+      console.error("Login error:", err.response?.data || err.message);
       setError("Invalid credentials or server error");
     }
   };

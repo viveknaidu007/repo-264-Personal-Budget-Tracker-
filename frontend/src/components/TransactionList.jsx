@@ -9,12 +9,12 @@ function TransactionList({ token }) {
 
   const fetchTransactions = async () => {
     const params = { page, ...filters };
-    const response = await axios.get("http://localhost:8000/api/transactions/", {
+    const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/transactions/`, {
       headers: { Authorization: `Token ${token}` },
       params,
     });
     setTransactions(response.data.results);
-    setTotalPages(Math.ceil(response.data.count / 10)); // Assuming 10 items per page
+    setTotalPages(Math.ceil(response.data.count / 10));
   };
 
   useEffect(() => {
@@ -22,7 +22,7 @@ function TransactionList({ token }) {
   }, [page, filters]);
 
   const handleDelete = async (id) => {
-    await axios.delete(`http://localhost:8000/api/transactions/${id}/`, {
+    await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/transactions/${id}/`, {
       headers: { Authorization: `Token ${token}` },
     });
     fetchTransactions();
@@ -31,8 +31,6 @@ function TransactionList({ token }) {
   return (
     <div className="bg-white p-6 rounded-lg shadow mt-6">
       <h2 className="text-xl font-semibold mb-4">Transaction Overview</h2>
-
-      {/* Filters */}
       <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
         <input
           type="date"
@@ -55,8 +53,6 @@ function TransactionList({ token }) {
           className="p-2 border rounded"
         />
       </div>
-
-      {/* Transaction Table */}
       <table className="w-full text-left">
         <thead>
           <tr className="bg-gray-200">
@@ -88,8 +84,6 @@ function TransactionList({ token }) {
           ))}
         </tbody>
       </table>
-
-      {/* Pagination */}
       <div className="mt-4 flex justify-between">
         <button
           onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
