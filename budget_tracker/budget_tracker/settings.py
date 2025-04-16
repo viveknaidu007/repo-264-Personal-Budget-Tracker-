@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-$j#ffj97fmz9kq1y23z)6%vr1(7l5_z*qo-5(&rl2a_zop3sp!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*","https://repo-264-personal-budget-tracker-backend.onrender.com"]
 
 
 # Application definition
@@ -57,6 +57,7 @@ MIDDLEWARE = [
 # CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  # Vite default port
+    "https://repo-264-personal-budget-tracker.onrender.com"
 ]
 
 REST_FRAMEWORK = {
