@@ -14,7 +14,7 @@ function TransactionOverview({ token, transactions }) {
 
   // Get category name from id
   const getCategoryName = (categoryId) => {
-    if (!categoryId) return "N/A";
+    if (!categoryId) return "N/A"; // Handle null or undefined
     const category = staticCategories.find((cat) => cat.id === parseInt(categoryId));
     return category ? category.name : "N/A";
   };

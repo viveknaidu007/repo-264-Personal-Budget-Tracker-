@@ -1,50 +1,66 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-function TransactionList({ token }) {
-  const [transactions, setTransactions] = useState([]);
-  const [page, setPage] = useState(1);
-  const [filters, setFilters] = useState({ date: "", category: "", amount: "" });
-  const [totalPages, setTotalPages] = useState(1);
+function TransactionOverview({ token, transactions, setTransactions }) {
   const [error, setError] = useState("");
+  const [filters, setFilters] = useState({ date: "", category: "", amount: "" });
 
-  const fetchTransactions = async () => {
-    try {
-      const params = { page, ...filters };
-      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/transactions/`, {
-        headers: { Authorization: `Token ${token}` },
-        params,
-      });
-      setTransactions(response.data.results || []);
-      setTotalPages(Math.ceil(response.data.count / 10));
-      setError("");
-    } catch (err) {
-      setError("Failed to load transactions. Please try again.");
-      console.error("Transactions fetch error:", err);
-    }
+  // Static categories for mapping (as fallback)
+  const staticCategories = [
+    { id: 1, name: "Food" },
+    { id: 2, name: "Travel" },
+    { id: 3, name: "Entertainment" },
+    { id: 4, name: "Utilities" },
+  ];
+
+  // Get category name from id
+  const getCategoryName = (categoryId) => {
+    if (!categoryId) return "Uncategorized"; // Handle null or undefined
+    const category = staticCategories.find((cat) => cat.id === parseInt(categoryId));
+    return category ? category.name : "Uncategorized";
   };
 
-  useEffect(() => {
-    if (token) fetchTransactions();
-  }, [page, filters, token]);
-
+  // Handle delete transaction
   const handleDelete = async (id) => {
     try {
       await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/api/transactions/${id}/`, {
         headers: { Authorization: `Token ${token}` },
       });
-      fetchTransactions();
+      // Update transactions by filtering out the deleted one
+      setTransactions(transactions.filter((txn) => txn.id !== id));
+      setError("");
     } catch (err) {
       setError("Failed to delete transaction. Please try again.");
       console.error("Delete transaction error:", err);
     }
   };
 
+  // Handle filter application
+  const applyFilters = async () => {
+    try {
+      const params = { ...filters };
+      const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/transactions/`, {
+        headers: { Authorization: `Token ${token}` },
+        params,
+      });
+      setTransactions(response.data.results || []);
+      setError("");
+    } catch (err) {
+      setError("Failed to load filtered transactions. Please try again.");
+      console.error("Filter transactions error:", err);
+    }
+  };
+
+  // Apply filters when they change
+  useEffect(() => {
+    if (token) applyFilters();
+  }, [filters, token]);
+
   return (
     <div className="bg-white p-6 rounded-lg shadow mt-6">
       <h2 className="text-xl font-semibold mb-4">Transaction Overview</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
-      <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="flex justify-between mb-4 gap-4">
         <input
           type="date"
           value={filters.date}
@@ -66,28 +82,34 @@ function TransactionList({ token }) {
           className="p-2 border rounded"
         />
       </div>
-      <table className="w-full text-left">
+      <table className="w-full text-left border-collapse">
         <thead>
           <tr className="bg-gray-200">
-            <th className="p-2">Category</th>
-            <th className="p-2">Amount</th>
-            <th className="p-2">Date</th>
-            <th className="p-2">Description</th>
-            <th className="p-2">Type</th>
-            <th className="p-2">Actions</th>
+            <th className="p-2 border">Category</th>
+            <th className="p-2 border">Amount</th>
+            <th className="p-2 border">Date</th>
+            <th className="p-2 border">Description</th>
+            <th className="p-2 border">Type</th>
+            <th className="p-2 border">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {transactions.map((txn) => (
-            <tr key={txn.id} className="border-b">
-              <td className="p-2">{txn.category?.name || "N/A"}</td>
-              <td className="p-2">{txn.amount}</td>
-              <td className="p-2">{txn.date}</td>
-              <td className="p-2">{txn.description}</td>
-              <td className="p-2">{txn.type}</td>
+          {transactions.map((transaction) => (
+            <tr key={transaction.id} className="border-t">
+              <td className="p-2">{getCategoryName(transaction.category)}</td>
+              <td className="p-2">{parseFloat(transaction.amount).toFixed(2)}</td>
+              <td className="p-2">
+                {new Date(transaction.date).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                })}
+              </td>
+              <td className="p-2">{transaction.description || "N/A"}</td>
+              <td className="p-2">{transaction.type}</td>
               <td className="p-2">
                 <button
-                  onClick={() => handleDelete(txn.id)}
+                  onClick={() => handleDelete(transaction.id)}
                   className="text-red-500 hover:underline"
                 >
                   Delete
@@ -97,25 +119,13 @@ function TransactionList({ token }) {
           ))}
         </tbody>
       </table>
-      <div className="mt-4 flex justify-between">
-        <button
-          onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-          disabled={page === 1}
-          className="bg-blue-500 text-white p-2 rounded disabled:bg-gray-400"
-        >
-          Previous
-        </button>
-        <span>Page {page} of {totalPages}</span>
-        <button
-          onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-          disabled={page === totalPages}
-          className="bg-blue-500 text-white p-2 rounded disabled:bg-gray-400"
-        >
-          Next
-        </button>
+      <div className="flex justify-between mt-2">
+        <button className="p-2 bg-gray-300 rounded">Previous</button>
+        <span>Page 1 of 1</span>
+        <button className="p-2 bg-gray-300 rounded">Next</button>
       </div>
     </div>
   );
 }
 
-export default TransactionList;
+export default TransactionOverview;

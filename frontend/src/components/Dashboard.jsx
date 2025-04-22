@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import TransactionForm from "./TransactionForm";
-import TransactionOverview from "./TransactionOverview"; // Use the new component
+import TransactionOverview from "./TransactionOverview";
 import BudgetManager from "./BudgetManager";
 import Chart from "./Chart";
 import axios from "axios";
@@ -8,7 +8,7 @@ import axios from "axios";
 function Dashboard({ token, onLogout }) {
   const [summary, setSummary] = useState({ total_income: 0, total_expenses: 0, balance: 0 });
   const [budgetData, setBudgetData] = useState({ budget: 0, actual_expenses: 0 });
-  const [transactions, setTransactions] = useState([]); // Shared state for transactions
+  const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -28,10 +28,10 @@ function Dashboard({ token, onLogout }) {
         setSummary(summaryRes.data);
         setBudgetData(budgetRes.data);
         setTransactions(transactionsRes.data.results || []);
-        setError(""); // Clear error on successful fetch
+        setError("");
       } catch (err) {
         setError("Failed to load dashboard data. Please try again.");
-        console.error("Dashboard fetch error:", err); // Log for debugging
+        console.error("Dashboard fetch error:", err);
       }
     };
     if (token) fetchData();
@@ -56,7 +56,7 @@ function Dashboard({ token, onLogout }) {
           <Chart data={budgetData} type="bar" />
         </div>
         <TransactionForm token={token} transactions={transactions} setTransactions={setTransactions} />
-        <TransactionOverview token={token} transactions={transactions} />
+        <TransactionOverview token={token} transactions={transactions} setTransactions={setTransactions} />
         <BudgetManager token={token} />
       </div>
     </div>
